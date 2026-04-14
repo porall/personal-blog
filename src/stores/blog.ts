@@ -22,27 +22,58 @@ const blogConfig: BlogPost[] = [
   }
 ]
 
+const STORAGE_KEY = 'personal-blog-posts'
+
 export const useBlogStore = defineStore('blog', () => {
   const posts = ref<BlogPost[]>([])
   const loading = ref(false)
 
+  const saveToStorage = () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts.value))
+  }
+
+  const loadFromStorage = () => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        const savedPosts = JSON.parse(stored)
+        // 合并存储的文章和默认文章
+        const defaultIds = blogConfig.map(p => p.id)
+        const merged = [...blogConfig]
+        savedPosts.forEach((p: BlogPost) => {
+          if (!defaultIds.includes(p.id)) {
+            merged.push(p)
+          }
+        })
+        posts.value = merged.sort((a, b) => b.date.localeCompare(a.date))
+      } else {
+        posts.value = [...blogConfig]
+      }
+    } catch (e) {
+      console.error('Failed to load from storage:', e)
+      posts.value = [...blogConfig]
+    }
+  }
+
   const loadPosts = async () => {
     loading.value = true
     try {
-      // 直接使用配置的文章
-      posts.value = blogConfig
+      // 先从 localStorage 加载
+      loadFromStorage()
       
       // 尝试加载 markdown 文件内容
       for (let i = 0; i < posts.value.length; i++) {
         const post = posts.value[i]
-        try {
-          const response = await fetch(`/blogs/${post.id}.md`)
-          if (response.ok) {
-            const content = await response.text()
-            post.content = content
+        if (!post.content) {
+          try {
+            const response = await fetch(`/blogs/${post.id}.md`)
+            if (response.ok) {
+              const content = await response.text()
+              post.content = content
+            }
+          } catch (e) {
+            console.warn(`Failed to load blog: ${post.id}`)
           }
-        } catch (e) {
-          console.warn(`Failed to load blog: ${post.id}`)
         }
       }
     } catch (e) {
@@ -59,6 +90,7 @@ export const useBlogStore = defineStore('blog', () => {
   const addPost = (post: Omit<BlogPost, 'id'>) => {
     const id = `${post.date}-${post.title.toLowerCase().replace(/\s+/g, '-')}`
     posts.value.unshift({ ...post, id })
+    saveToStorage()
   }
 
   return {

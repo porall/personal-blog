@@ -6,7 +6,8 @@ export const userInfo = {
   email: 'porall@foxmail.com',
   phone: '15819206304',
   location: '深圳',
-  github: 'https://github.com',
+  workYears: 3,
+  github: 'https://github.com/porall',
   skills: [
     'Vue', 'Vue Router', 'Pinia', 'TypeScript', 'Electron',
     '低代码平台', 'Monorepo', 'WebSocket', '性能优化', '前端安全', 'SpringBoot'

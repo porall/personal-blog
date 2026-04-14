@@ -11,7 +11,7 @@ export interface GitHubRepo {
   updated_at: string
 }
 
-const GITHUB_USERNAME = 'your-github-username' // TODO: 填入 GitHub 用户名
+const GITHUB_USERNAME = 'porall'
 
 export function useGitHubRepos() {
   const repos = ref<GitHubRepo[]>([])

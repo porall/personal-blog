@@ -8,6 +8,14 @@
       
       <div class="nav-links">
         <router-link 
+          to="/resume" 
+          class="nav-link"
+          :class="{ active: $route.path === '/resume' }"
+        >
+          <span class="nav-link-en">Resume</span>
+          <span class="nav-link-zh">简历</span>
+        </router-link>
+        <router-link 
           to="/" 
           class="nav-link"
           :class="{ active: $route.path === '/' }"
